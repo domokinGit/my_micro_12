@@ -1,0 +1,123 @@
+{
+  "$schema": "https://www.krakend.io/schema/v3.json",
+  "version": 3,
+  "output_encoding": "json",
+  "endpoints": [
+    {
+      "endpoint": "/v1/menu",
+      "method": "GET",
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/v1/menu",
+          "sd": "static",
+          "method": "GET",
+          "is_collection": true,
+          "host": [
+            "http://menu_service:8000"
+          ],
+          "mapping": {
+            "collection": "menu"
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/menu/add",
+      "method": "POST",
+      "output_encoding": "json",
+
+      "backend": [
+        {
+          "url_pattern": "/v1/menu/add",
+          "encoding": "safejson",
+          "sd": "static",
+          "method": "POST",
+          "host": [
+            "http://menu_service:8000"
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/users",
+      "method": "GET",
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/v1/users",
+          "encoding": "json",
+          "is_collection": true,
+          "sd": "static",
+          "method": "GET",
+          "host": [
+            "http://authorization_service:8000"
+          ],
+          "mapping": {
+            "collection": "users"
+          }
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "HS256",
+          "jwk_local_path": "jwk_private_key.json",
+          "disable_jwk_security": true,
+          "operation_debug": true
+        }
+      }
+    },
+    {
+      "endpoint": "/v1/user_menu",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/v1/menu",
+          "encoding": "safejson",
+          "is_collection": true,
+          "host": [
+            "http://menu_service:8000"
+          ],
+          "mapping": {
+            "collection": "menu"
+          }
+        },
+        {
+          "url_pattern": "/v1/users",
+          "encoding": "safejson",
+          "is_collection": true,
+          "host": [
+            "http://authorization_service:8000"
+          ],
+          "mapping": {
+            "collection": "users"
+          }
+        }
+      ]
+    },
+     {
+      "endpoint": "/v1/login",
+      "method":  "POST",
+      "backend": [
+        {
+          "url_pattern": "/v1/login",
+          "encoding": "safejson",
+          "host": [
+              "http://authorization_service:8000"
+          ]
+        }
+      ],
+      "extra_config": {
+        "auth/signer": {
+          "alg": "HS256",
+          "jwk_local_path": "jwk_private_key.json",
+          "keys_to_sign": ["access_token"],
+          "disable_jwk_security": true,
+          "full": false,
+          "kid": "sim2"
+        }
+      }
+    }
+
+  ]
+}

@@ -1,0 +1,86 @@
+version: '3.9'
+
+services:
+  authorization_service:
+    container_name: authorization_service
+    build: ./authorization_service
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./authorization_service:/code
+    environment:
+      - JAEGER_AGENT_HOST=jaeger-all-in-one
+
+  healthcheck_service:
+    container_name: health_check_service
+    build: ./health_check_service
+
+  menu_service:
+    container_name: menu_service
+    build: ./menu_service
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./menu_service:/code
+    environment:
+      - JAEGER_AGENT_HOST=jaeger-all-in-one
+
+  krakenD:
+    image: devopsfaith/krakend:watch
+    container_name: krakenD
+    volumes:
+      - ./krakenD:/etc/krakend
+    ports:
+      - "8080:8080"
+    command: [ "run", "-d", "-c", "/etc/krakend/krakend.json" ]
+    depends_on:
+      - authorization_service
+      - menu_service
+
+  mongo_menu:
+    container_name: mongo_menu
+    image: bitnami/mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ~/apps/mongo:/data/db
+
+  mongo_users:
+    container_name: mongo_user
+    image: bitnami/mongodb
+    ports:
+      - "27018:27017"
+    volumes:
+      - ~/apps/mongo:/data/db
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus:/etc/prometheus/
+    container_name: prometheus
+    hostname: prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    environment:
+      TZ: "Europe/Moscow"
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    hostname: grafana
+    volumes:
+      - ~/grafana:/var/lib/grafana
+    ports:
+      - "3000:3000"
+
+  jaeger-all-in-one:
+    container_name: jaeger
+    image: jaegertracing/all-in-one
+    environment:
+      - JAEGER_DISABLED=false
+    ports:
+      - "16686:16686"
+
