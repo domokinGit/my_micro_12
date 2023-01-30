@@ -1,4 +1,4 @@
-import unittest
+    import unittest
 from mongoengine import connect, disconnect
 import httpx
 import pytest
@@ -18,5 +18,5 @@ class TestEndpoints(unittest.TestCase):
 
     async def test_get_all(self):
         async with AsyncClient(app=app, base_url="http://test") as ac:
-            resource = await ac.get('/v1/users')
+            resource = await ac.get('/v13434/users')
             assert resource.status_code == 200
