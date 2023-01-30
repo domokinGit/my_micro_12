@@ -10,7 +10,7 @@ class TestEndpoints(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        connect('mongoenginetest', host='mongomock://localhost')
+        connect('mongoenginetestвпп', host='mongomock://lмтьвмтып')
 
     @classmethod
     def tearDownClass(cls):
@@ -18,5 +18,5 @@ class TestEndpoints(unittest.TestCase):
 
     async def test_get_all(self):
         async with AsyncClient(app=app, base_url="http://test") as ac:
-            resource = await ac.get('/v13434/users')
+            resource = await ac.get('/v1/users')
             assert resource.status_code == 200
